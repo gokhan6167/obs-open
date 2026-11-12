@@ -39,7 +39,7 @@ jobs:
       DATABASE_URL: postgres://obs_app:obs_app_dev_password@localhost:5432/obs
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 9.15.0
       - uses: actions/setup-node@v4
@@ -62,7 +62,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 9.15.0
       - uses: actions/setup-node@v4
