@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { currentRoles, decodeToken, getToken, logout } from '../lib/api';
+import { useI18n, LangSwitch } from '../lib/i18n';
 
 const ROLE_TR: Record<string, string> = {
   ogrenci: 'Öğrenci',
@@ -15,6 +16,7 @@ export const roleLabel = (r: string): string => ROLE_TR[r] ?? r;
 
 function TopBar(): React.ReactElement {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [roles, setRoles] = useState<string[]>([]);
   useEffect(() => {
@@ -28,14 +30,15 @@ function TopBar(): React.ReactElement {
     <div className="topbar">
       <span className="brand">OBS · Demo</span>
       <div className="who">
-        <span>{roles.map(roleLabel).join(', ')}</span>
+        <LangSwitch />
+        <span>{roles.map((r) => t(roleLabel(r))).join(', ')}</span>
         <button
           onClick={() => {
             logout();
             router.push('/');
           }}
         >
-          Çıkış
+          {t('Çıkış')}
         </button>
       </div>
     </div>

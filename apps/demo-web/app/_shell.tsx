@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { currentRoles, logout, rolePanels } from '../lib/api';
+import { useI18n, LangSwitch } from '../lib/i18n';
 import { Icon, IconName, Toaster } from './ui';
 
 export interface ShellMenuItem {
@@ -101,6 +102,7 @@ function useTheme(): [string, () => void] {
   return [theme, toggle];
 }
 
+// Metinler Türkçe kaynak; ekranda t() ile çevrilir (lib/en.ts).
 const DEMO_NOTIFS = [
   { ico: 'checkCircle' as IconName, title: 'Ders kayıt onayınız tamamlandı', meta: 'Danışman · 2 saat önce' },
   { ico: 'money' as IconName, title: 'Dönem taksidi son ödeme yaklaşıyor', meta: 'Mali İşler · dün' },
@@ -110,6 +112,7 @@ const DEMO_NOTIFS = [
 export function RoleShell({ title, menu, allow, children }: RoleShellProps): React.ReactElement | null {
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useI18n();
   const [ready, setReady] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -150,8 +153,10 @@ export function RoleShell({ title, menu, allow, children }: RoleShellProps): Rea
   const results = useMemo(() => {
     if (!q.trim()) return [];
     const s = q.toLowerCase();
-    return allItems.filter((it) => it.label.toLowerCase().includes(s)).slice(0, 6);
-  }, [q, allItems]);
+    return allItems
+      .filter((it) => it.label.toLowerCase().includes(s) || t(it.label).toLowerCase().includes(s))
+      .slice(0, 6);
+  }, [q, allItems, t]);
 
   const crumb = useMemo(() => {
     for (const g of menu) for (const it of g.items) if (it.href === pathname) return { grup: g.grup, label: it.label };
@@ -171,7 +176,7 @@ export function RoleShell({ title, menu, allow, children }: RoleShellProps): Rea
             if (window.matchMedia('(max-width: 860px)').matches) setDrawer((d) => !d);
             else setCollapsed((c) => !c);
           }}
-          aria-label="Menüyü aç/kapat"
+          aria-label={t('Menüyü aç/kapat')}
         >
           <Icon name="menu" />
         </button>
@@ -182,14 +187,14 @@ export function RoleShell({ title, menu, allow, children }: RoleShellProps): Rea
 
         <div className="topsearch">
           <Icon name="search" size={16} />
-          <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Menüde ara…" aria-label="Ara" />
+          <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Menüde ara…')} aria-label={t('Ara')} />
           <kbd>⌘K</kbd>
           {results.length > 0 && (
             <div className="dropdown">
               {results.map((it) => (
                 <Link key={it.href} href={it.href} className="dd-item" onClick={() => setQ('')}>
                   <Icon name={iconFor(it)} size={16} className="d-ico" />
-                  <div className="d-title">{it.label}</div>
+                  <div className="d-title">{t(it.label)}</div>
                 </Link>
               ))}
             </div>
@@ -199,36 +204,37 @@ export function RoleShell({ title, menu, allow, children }: RoleShellProps): Rea
         <div className="spacer" />
 
         <div className="who" style={{ position: 'relative' }}>
-          <span className="tag-live" title="Canlı API">canlı</span>
-          <button className="icon-btn" onClick={toggleTheme} aria-label="Tema"><Icon name={theme === 'dark' ? 'sun' : 'moon'} /></button>
-          <button className="icon-btn" onClick={() => setOpenMenu((m) => m === 'notif' ? null : 'notif')} aria-label="Bildirimler">
+          <LangSwitch className="icon-btn" />
+          <span className="tag-live" title={t('Canlı API')}>{t('canlı')}</span>
+          <button className="icon-btn" onClick={toggleTheme} aria-label={t('Tema')}><Icon name={theme === 'dark' ? 'sun' : 'moon'} /></button>
+          <button className="icon-btn" onClick={() => setOpenMenu((m) => m === 'notif' ? null : 'notif')} aria-label={t('Bildirimler')}>
             <Icon name="bell" /><span className="dot" />
           </button>
           {openMenu === 'notif' && (
             <div className="dropdown" style={{ right: 90 }}>
-              <div className="dd-head">Bildirimler <span className="badge info no-dot">{DEMO_NOTIFS.length}</span></div>
+              <div className="dd-head">{t('Bildirimler')} <span className="badge info no-dot">{DEMO_NOTIFS.length}</span></div>
               {DEMO_NOTIFS.map((n, i) => (
                 <div className="dd-item" key={i}>
                   <Icon name={n.ico} size={17} className="d-ico" />
-                  <div><div className="d-title">{n.title}</div><div className="d-meta">{n.meta}</div></div>
+                  <div><div className="d-title">{t(n.title)}</div><div className="d-meta">{t(n.meta)}</div></div>
                 </div>
               ))}
             </div>
           )}
           <button className="userchip" onClick={() => setOpenMenu((m) => m === 'user' ? null : 'user')}>
-            <span className="avatar">{(roleName || 'K')[0]}</span>
-            <span className="stack"><span className="u-name">{roleName || 'Kullanıcı'}</span><span className="u-role">Demo</span></span>
+            <span className="avatar">{(t(roleName) || 'K')[0]}</span>
+            <span className="stack"><span className="u-name">{roleName ? t(roleName) : t('Kullanıcı')}</span><span className="u-role">Demo</span></span>
             <Icon name="chevronDown" size={15} style={{ color: 'var(--muted)' }} />
           </button>
           {openMenu === 'user' && (
             <div className="dropdown" style={{ right: 0, width: 260 }}>
-              <div className="dd-head">{roleName || 'Kullanıcı'}</div>
+              <div className="dd-head">{roleName ? t(roleName) : t('Kullanıcı')}</div>
               {/* Çok rollü kullanıcı (ör. öğretim elemanı + bölüm başkanı):
                   yetkisi olan tüm panellere buradan geçer. */}
               {panels.length > 1 && (
                 <>
                   <div className="dd-head" style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>
-                    Panel değiştir ({panels.length} yetki)
+                    {t('Panel değiştir')} ({panels.length} {t('yetki')})
                   </div>
                   {panels.map((p) => {
                     const active = pathname === p.href || pathname.startsWith(p.href + '/');
@@ -237,17 +243,17 @@ export function RoleShell({ title, menu, allow, children }: RoleShellProps): Rea
                         <Icon name={active ? 'checkCircle' : 'grid'} size={16} className="d-ico" />
                         <div>
                           <div className="d-title" style={active ? { color: 'var(--accent)' } : undefined}>
-                            {p.label}
+                            {t(p.label)}
                           </div>
-                          {active && <div className="d-meta">şu an buradasınız</div>}
+                          {active && <div className="d-meta">{t('şu an buradasınız')}</div>}
                         </div>
                       </Link>
                     );
                   })}
                 </>
               )}
-              <div className="dd-item" onClick={toggleTheme}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} className="d-ico" /><div className="d-title">{theme === 'dark' ? 'Açık tema' : 'Koyu tema'}</div></div>
-              <div className="dd-item" onClick={() => { logout(); router.push('/'); }}><Icon name="logout" size={16} className="d-ico" /><div className="d-title">Çıkış yap</div></div>
+              <div className="dd-item" onClick={toggleTheme}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} className="d-ico" /><div className="d-title">{theme === 'dark' ? t('Açık tema') : t('Koyu tema')}</div></div>
+              <div className="dd-item" onClick={() => { logout(); router.push('/'); }}><Icon name="logout" size={16} className="d-ico" /><div className="d-title">{t('Çıkış yap')}</div></div>
             </div>
           )}
         </div>
@@ -255,30 +261,30 @@ export function RoleShell({ title, menu, allow, children }: RoleShellProps): Rea
 
       <div className={`drawer-scrim ${drawer ? 'show' : ''}`} onClick={() => setDrawer(false)} />
       <div className="shell">
-        <nav className={`sidebar ${drawer ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`} aria-label="Menü">
+        <nav className={`sidebar ${drawer ? 'open' : ''} ${collapsed ? 'collapsed' : ''}`} aria-label={t('Menü')}>
           {menu.map((g) => (
             <div key={g.grup}>
-              <div className="grp">{g.grup}</div>
+              <div className="grp">{t(g.grup)}</div>
               {g.items.map((it) => (
                 <Link key={it.href} href={it.href} className={pathname === it.href ? 'active' : ''}>
                   <Icon name={iconFor(it)} size={18} className="nav-ico" />
-                  {it.label}
+                  {t(it.label)}
                 </Link>
               ))}
             </div>
           ))}
           <div className="side-foot">
-            <b>{roleName || 'Portal'}</b><br />
-            Canlı demo · sentetik veri.<br />Tüm işlemler gerçek OBS API'sine bağlıdır.
+            <b>{roleName ? t(roleName) : t('Portal')}</b><br />
+            {t('Canlı demo · sentetik veri.')}<br />{t("Tüm işlemler gerçek OBS API'sine bağlıdır.")}
           </div>
         </nav>
 
         <main className="content">
           <div className="content-inner">
             <div className="crumbs">
-              <Link href={homeHref}>{brand.replace('OBS · Demo', 'Ana Sayfa')}</Link>
-              {roleName && <><span className="sep">/</span><Link href={homeHref}>{roleName}</Link></>}
-              {crumb && pathname !== homeHref && <><span className="sep">/</span><span className="cur">{crumb.label}</span></>}
+              <Link href={homeHref}>{t(brand.replace('OBS · Demo', 'Ana Sayfa'))}</Link>
+              {roleName && <><span className="sep">/</span><Link href={homeHref}>{t(roleName)}</Link></>}
+              {crumb && pathname !== homeHref && <><span className="sep">/</span><span className="cur">{t(crumb.label)}</span></>}
             </div>
             {children}
           </div>

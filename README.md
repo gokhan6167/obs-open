@@ -1,5 +1,7 @@
 # OBS — Üniversite Öğrenci Bilgi Sistemi
 
+**Türkçe** · [English](README.en.md)
+
 Çok kiracılı (multi-tenant) bir **Üniversite Öğrenci Bilgi Sistemi (OBS)** SaaS'ı.
 İlk pilot müşteri: **Demo Üniversitesi** — sağlık
 ağırlıklı vakıf üniversitesi.
