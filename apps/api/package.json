@@ -27,7 +27,7 @@
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/throttler": "^6.5.0",
-    "@node-rs/argon2": "^2.0.2",
+    "@node-rs/argon2": "^2.2.2",
     "@obs/academic-core": "workspace:*",
     "@sentry/node": "^10.69.0",
     "drizzle-orm": "^0.45.2",
