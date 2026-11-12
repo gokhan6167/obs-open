@@ -1,0 +1,51 @@
+{
+  "_comment": "Altın (golden) GNO senaryoları. Denemeler ÇÖZÜLMÜŞ haldedir (katsayı/countsInGpa verili). Beklenen değerler el ile doğrulanmıştır; her commit'te sabit kalır. Gerçek Demo transkriptleriyle paralel doğrulama Faz 8'de eklenecek.",
+  "cases": [
+    {
+      "name": "basit-iki-ders",
+      "policy": { "repeatPolicy": "last", "rounding": { "digits": 2, "mode": "half-up" } },
+      "attempts": [
+        { "courseCode": "MAT101", "credit": 6, "coefficient": 4.0, "countsInGpa": true, "termOrder": 1 },
+        { "courseCode": "FIZ101", "credit": 4, "coefficient": 3.0, "countsInGpa": true, "termOrder": 1 }
+      ],
+      "expected": { "gpa": 3.6, "totalCredit": 10 }
+    },
+    {
+      "name": "tekrar-ders-son-not-gecerli",
+      "policy": { "repeatPolicy": "last", "rounding": { "digits": 2, "mode": "half-up" } },
+      "attempts": [
+        { "courseCode": "MAT101", "credit": 6, "coefficient": 3.0, "countsInGpa": true, "termOrder": 1 },
+        { "courseCode": "MAT101", "credit": 6, "coefficient": 1.0, "countsInGpa": true, "termOrder": 2 },
+        { "courseCode": "FIZ101", "credit": 4, "coefficient": 4.0, "countsInGpa": true, "termOrder": 1 }
+      ],
+      "expected": { "gpa": 2.2, "totalCredit": 10 }
+    },
+    {
+      "name": "tekrar-ders-en-yuksek-not-gecerli",
+      "policy": { "repeatPolicy": "highest", "rounding": { "digits": 2, "mode": "half-up" } },
+      "attempts": [
+        { "courseCode": "MAT101", "credit": 6, "coefficient": 3.0, "countsInGpa": true, "termOrder": 1 },
+        { "courseCode": "MAT101", "credit": 6, "coefficient": 1.0, "countsInGpa": true, "termOrder": 2 },
+        { "courseCode": "FIZ101", "credit": 4, "coefficient": 4.0, "countsInGpa": true, "termOrder": 1 }
+      ],
+      "expected": { "gpa": 3.4, "totalCredit": 10 }
+    },
+    {
+      "name": "muaf-ders-ortalamaya-girmez",
+      "policy": { "repeatPolicy": "last", "rounding": { "digits": 2, "mode": "half-up" } },
+      "attempts": [
+        { "courseCode": "ENG101", "credit": 3, "coefficient": 0.0, "countsInGpa": false, "termOrder": 1 },
+        { "courseCode": "MAT101", "credit": 4, "coefficient": 4.0, "countsInGpa": true, "termOrder": 1 }
+      ],
+      "expected": { "gpa": 4.0, "totalCredit": 4 }
+    },
+    {
+      "name": "hepsi-muaf-gno-sifir",
+      "policy": { "repeatPolicy": "last", "rounding": { "digits": 2, "mode": "half-up" } },
+      "attempts": [
+        { "courseCode": "ENG101", "credit": 3, "coefficient": 0.0, "countsInGpa": false, "termOrder": 1 }
+      ],
+      "expected": { "gpa": 0, "totalCredit": 0 }
+    }
+  ]
+}

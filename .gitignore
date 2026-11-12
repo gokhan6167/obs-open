@@ -1,0 +1,31 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# test
+coverage/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# editor / os
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# logs
+*.log
+npm-debug.log*
+
+# docker volumes (local)
+infra/docker/.data/
+.vercel

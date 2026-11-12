@@ -1,0 +1,16 @@
+# Gerçek bağımlılık güvenlik kapısı (master prompt §5). pnpm audit endpoint'i
+# emekliye ayrıldığı için birincil kaynak budur.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      dev-dependencies:
+        dependency-type: development
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -1,0 +1,28 @@
+{
+  "name": "@obs/academic-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Framework-bağımsız akademik hesap çekirdeği (GNO, harf notu, koşul motoru). %100 test hedefi.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@obs/config": "workspace:*",
+    "@vitest/coverage-v8": "^3.2.6",
+    "fast-check": "^3.23.2",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.6"
+  }
+}

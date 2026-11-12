@@ -1,0 +1,25 @@
+{
+  "name": "obs-demo-web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "e2e:install": "playwright install chromium",
+    "e2e": "playwright test --grep-invert @write",
+    "e2e:local": "playwright test",
+    "e2e:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "next": "15.5.23",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@obs/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OBS tipli API istemcisi — web ve mobil ortak.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@obs/config": "workspace:*",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.6"
+  }
+}

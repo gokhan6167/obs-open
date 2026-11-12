@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: iş akışının yazma yetkisi yok.
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint / Typecheck / Test / Build
+    runs-on: ubuntu-latest
+    # DEPLOYMENT_MODE matrisi: her özellik iki modda da geçerli (master prompt §4).
+    strategy:
+      matrix:
+        deployment_mode: [multi-tenant, single-tenant]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: obs
+          POSTGRES_PASSWORD: obs_dev_password
+          POSTGRES_DB: obs
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U obs -d obs"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DEPLOYMENT_MODE: ${{ matrix.deployment_mode }}
+      DATABASE_MIGRATE_URL: postgres://obs:obs_dev_password@localhost:5432/obs
+      DATABASE_URL: postgres://obs_app:obs_app_dev_password@localhost:5432/obs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      # RLS izolasyonu — gerçek Postgres'e karşı, bloklayıcı (ADR-0003).
+      - run: pnpm db:migrate
+      - run: pnpm --filter @obs/api test:isolation
+
+  security:
+    name: Bağımlılık + SAST
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Bağımlılık denetimi: gerçek yüksek+ açıkta BLOKLAR. npm'in legacy audit
+      # endpoint'i 410 ile emekliye ayrıldığı için SADECE o bilinen altyapı
+      # arızasında geçilir (fail-closed; yalnız endpoint çökünce fail-open).
+      # İkincil kapı: Dependabot (.github/dependabot.yml).
+      - name: Bağımlılık denetimi (yüksek+ bloklayıcı)
+        run: |
+          set +e
+          out=$(pnpm audit --audit-level high 2>&1); code=$?
+          echo "$out"
+          if [ $code -ne 0 ]; then
+            if echo "$out" | grep -q "ERR_PNPM_AUDIT_BAD_RESPONSE"; then
+              echo "::warning::pnpm audit endpoint arızası (410) — geçici geçildi; Dependabot ikincil kapı"
+              exit 0
+            fi
+            echo "::error::Yüksek+ bağımlılık açığı bulundu"
+            exit 1
+          fi
+      # SAST: secrets + owasp-top-ten + typescript. Gürültüyü kesmek için sadece
+      # ERROR severity bloklar. Semgrep sürümü pinli (supply-chain).
+      - name: Semgrep SAST (bloklayıcı)
+        run: |
+          python3 -m pip install --quiet --break-system-packages "semgrep==1.90.0"
+          semgrep scan \
+            --config p/secrets --config p/owasp-top-ten --config p/typescript \
+            --severity ERROR --error \
+            --exclude node_modules --exclude dist

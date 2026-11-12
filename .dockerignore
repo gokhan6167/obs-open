@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+.git
+.github
+infra/docker/.data
+apps/student-web
+docs
+*.md
+**/*.test.ts
+**/*.integration.test.ts

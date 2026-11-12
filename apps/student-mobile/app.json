@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "OBS Öğrenci",
+    "slug": "obs-student",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true },
+    "android": { "package": "edu.obs.student" }
+  }
+}

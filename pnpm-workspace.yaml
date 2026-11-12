@@ -1,0 +1,7 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  # RN öğrenci uygulaması ayrı toolchain (Expo/Metro) — monorepo install'ından hariç.
+  - "!apps/student-mobile"
+  # Vitrin demo UI (Next.js) — Vercel'e standalone deploy, monorepo install'ından hariç.
+  - "!apps/demo-web"

@@ -1,0 +1,11 @@
+# Caddy otomatik TLS reverse proxy (Faz 9). OBS_DOMAIN gerçek alan adıysa Let's
+# Encrypt ile otomatik sertifika; localhost ise dahili self-signed.
+{$OBS_DOMAIN} {
+	reverse_proxy app:3000
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+	}
+}
